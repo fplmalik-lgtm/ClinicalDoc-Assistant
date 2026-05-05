@@ -32,13 +32,12 @@ export default function App() {
   const [summary, setSummary] = useState<StructuredClinicalSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [missingKey, setMissingKey] = useState(false);
 
-  // Clear data on refresh/close - Zero Storage Policy
   useEffect(() => {
-    return () => {
-      setSummary(null);
-      setSelectedRegions([]);
-    };
+    if (!process.env.GEMINI_API_KEY) {
+      setMissingKey(true);
+    }
   }, []);
 
   const handleSelectRegion = (regionName: string) => {
@@ -132,6 +131,22 @@ Doctor Questions: ${summary.doctorsQuestions.join('\n')}
             </div>
 
             <Disclaimer />
+
+            {missingKey && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2"
+              >
+                <div className="flex items-center gap-2 text-amber-800 font-bold text-sm">
+                  <AlertCircle className="w-4 h-4" />
+                  API Key Required for Clinical Engine
+                </div>
+                <p className="text-xs text-amber-700 leading-relaxed">
+                  If you are seeing this on <strong>Netlify</strong>, ensure you have added <code>GEMINI_API_KEY</code> to your site's "Environment Variables" in the Netlify dashboard.
+                </p>
+              </motion.div>
+            )}
 
             <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
               <div className="flex gap-6 items-start">
