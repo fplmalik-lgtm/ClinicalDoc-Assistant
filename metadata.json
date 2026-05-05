@@ -1,0 +1,6 @@
+{
+  "name": "ClinicalDoc Assistant",
+  "description": "A specialized tool that transforms casual symptom descriptions into structured, professional clinical summaries for healthcare visits.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
