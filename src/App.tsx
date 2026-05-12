@@ -35,8 +35,9 @@ export default function App() {
   const [missingKey, setMissingKey] = useState(false);
 
   useEffect(() => {
-    // Check if the key is missing or is the fallback empty string
-    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "") {
+    // Safely check for API key presence
+    const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined;
+    if (!apiKey || apiKey === "") {
       setMissingKey(true);
     }
   }, []);
