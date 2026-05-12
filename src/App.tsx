@@ -35,7 +35,8 @@ export default function App() {
   const [missingKey, setMissingKey] = useState(false);
 
   useEffect(() => {
-    if (!process.env.GEMINI_API_KEY) {
+    // Check if the key is missing or is the fallback empty string
+    if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === "") {
       setMissingKey(true);
     }
   }, []);
@@ -46,6 +47,70 @@ export default function App() {
         ? prev.filter(r => r !== regionName) 
         : [...prev, regionName]
     );
+  };
+
+  const [activePage, setActivePage] = useState<string | null>(null);
+
+  const pages: Record<string, { title: string, content: React.ReactNode }> = {
+    privacy: {
+      title: "Privacy Policy",
+      content: (
+        <div className="space-y-4">
+          <p>Your privacy is our priority. ClinicalDoc Assistant operates on a <strong>Zero-Storage Infrastructure</strong>. This means:</p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>We do not store your symptom descriptions in any database.</li>
+            <li>All personal identifiers (names, emails, phones) are stripped locally before processing.</li>
+            <li>Session data is cleared the moment you close your browser tab.</li>
+            <li>We do not sell or share your data with third-party advertisers.</li>
+          </ul>
+        </div>
+      )
+    },
+    terms: {
+      title: "Terms of Service",
+      content: (
+        <div className="space-y-4">
+          <p>By using ClinicalDoc Assistant, you agree to the following:</p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li><strong>Not a Diagnosis:</strong> This tool is for informational preparation only and does not provide medical diagnoses.</li>
+            <li><strong>No Doctor-Patient Relationship:</strong> Using this site does not establish a relationship with a healthcare professional.</li>
+            <li><strong>Emergency Use:</strong> Do not use this tool for medical emergencies. Call your local emergency services immediately if you are in distress.</li>
+          </ul>
+        </div>
+      )
+    },
+    mission: {
+      title: "Our Mission",
+      content: (
+        <p>Our mission is to empower patients by giving them the tools to speak the language of medicine. We believe that a well-prepared patient leads to a more accurate diagnosis and a more efficient healthcare system. We strive to reduce the anxiety of doctor visits by helping you organize your thoughts into clinical-grade summaries.</p>
+      )
+    },
+    medical: {
+      title: "Medical Review Process",
+      content: (
+        <div className="space-y-4">
+          <p>Our AI models are configured to prioritize <strong>evidence-based terminology</strong> and <strong>conservative clinical focus</strong>. Every prompt is designed to reflect standard SOAP (Subjective, Objective, Assessment, Plan) documentation patterns used by medical professionals worldwide.</p>
+          <p>We regularly benchmark our outputs against clinical documentation standards to ensure relevance and empathy.</p>
+        </div>
+      )
+    },
+    works: {
+      title: "How it Works",
+      content: (
+        <div className="space-y-4">
+          <p>1. <strong>Collection:</strong> You interact with our visual body map and text entry to describe your experience.</p>
+          <p>2. <strong>Scrubbing:</strong> Our local scripts strip PII (Personally Identifiable Information) before the data leaves your device.</p>
+          <p>3. <strong>Structuring:</strong> The Gemini Clinical Engine transforms your casual language into professional prose.</p>
+          <p>4. <strong>Delivery:</strong> You receive a PDF or text summary to present to your physician.</p>
+        </div>
+      )
+    },
+    support: {
+      title: "Contact Support",
+      content: (
+        <p>For technical feedback or inquiries about our organization, please reach out via our contact portal. We aim to respond to all organizational inquiries within 48 hours. Please note: we cannot provide medical advice via support channels.</p>
+      )
+    }
   };
 
   const handleCopy = () => {
@@ -143,7 +208,7 @@ Doctor Questions: ${summary.doctorsQuestions.join('\n')}
                   API Key Required for Clinical Engine
                 </div>
                 <p className="text-xs text-amber-700 leading-relaxed">
-                  If you are seeing this on <strong>Netlify</strong>, ensure you have added <code>GEMINI_API_KEY</code> to your site's "Environment Variables" in the Netlify dashboard.
+                  If you are seeing this on <strong>Netlify</strong>, ensure you have added <code>GEMINI_API_KEY</code> to your site's <strong>Site Configuration &gt; Environment Variables</strong>. You may also need to trigger a New Deploy after adding the key.
                 </p>
               </motion.div>
             )}
@@ -371,44 +436,90 @@ Doctor Questions: ${summary.doctorsQuestions.join('\n')}
             <p className="text-slate-500 text-sm leading-relaxed max-w-md">
               Bridging the gap between patient narratives and professional documentation. Our tool is designed solely as an organizational aid for doctor visits.
             </p>
-            <div className="flex gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
-               <a href="#" className="hover:text-blue-600">Privacy Policy</a>
-               <a href="#" className="hover:text-blue-600">Terms of Service</a>
-               <a href="#" className="hover:text-blue-600">Medical Review Process</a>
+            <div className="flex flex-wrap gap-4 text-xs font-bold text-slate-400 uppercase tracking-widest">
+               <button onClick={() => setActivePage('privacy')} className="hover:text-blue-600 transition-colors">Read our Privacy Policy</button>
+               <button onClick={() => setActivePage('terms')} className="hover:text-blue-600 transition-colors">Review Terms of Service</button>
+               <button onClick={() => setActivePage('medical')} className="hover:text-blue-600 transition-colors">Our Medical Review Process</button>
             </div>
           </div>
 
           <div className="space-y-4">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
               <Users className="w-4 h-4 text-blue-600" />
-              About Us
+              About ClinicalDoc
             </h4>
             <ul className="text-sm text-slate-500 space-y-2">
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Our Mission</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">How it Works</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Contact Support</a></li>
+              <li><button onClick={() => setActivePage('mission')} className="hover:text-blue-600 transition-colors">Learn about Our Mission</button></li>
+              <li><button onClick={() => setActivePage('works')} className="hover:text-blue-600 transition-colors">Understand How it Works</button></li>
+              <li><button onClick={() => setActivePage('support')} className="hover:text-blue-600 transition-colors">Get in Touch with Support</button></li>
             </ul>
           </div>
+          {/* ... existing Verified Health Info column ... */}
 
           <div className="space-y-4">
             <h4 className="text-xs font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2">
               <Globe className="w-4 h-4 text-blue-600" />
-              Reputable Sources
+              Verified Health Info
             </h4>
             <ul className="text-sm text-slate-500 space-y-2">
-              <li><a href="https://www.mayoclinic.org" target="_blank" className="hover:text-blue-600 transition-colors">Mayo Clinic</a></li>
-              <li><a href="https://www.webmd.com" target="_blank" className="hover:text-blue-600 transition-colors">WebMD</a></li>
-              <li><a href="https://www.cdc.gov" target="_blank" className="hover:text-blue-600 transition-colors">CDC Health Resources</a></li>
+              <li><a href="https://www.mayoclinic.org" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Visit Mayo Clinic for Clinical Info</a></li>
+              <li><a href="https://www.webmd.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">Check WebMD Symptom Reference</a></li>
+              <li><a href="https://www.cdc.gov" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600 transition-colors">CDC Health Guidelines & Resources</a></li>
             </ul>
           </div>
         </div>
         
-        <div className="max-w-6xl mx-auto px-6 py-8 border-t border-slate-100">
-          <p className="text-[10px] text-slate-400 leading-relaxed text-center">
+        <div className="max-w-6xl mx-auto px-6 py-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="text-[10px] text-slate-400 leading-relaxed text-center md:text-left max-w-3xl">
             <strong>Medical Disclaimer:</strong> The information provided by ClinicalDoc Assistant is for informational purposes only and is not intended to be a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition. Never disregard professional medical advice or delay in seeking it because of something you have read on this website.
+          </p>
+          <p className="text-[10px] text-slate-400 whitespace-nowrap">
+            © {new Date().getFullYear()} ClinicalDoc Assistant
           </p>
         </div>
       </footer>
+
+      {/* Internal Page Viewer Modal */}
+      <AnimatePresence>
+        {activePage && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActivePage(null)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" 
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl overflow-hidden"
+            >
+              <div className="bg-slate-50 px-8 py-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 className="text-xl font-bold text-slate-900">{pages[activePage].title}</h3>
+                <button 
+                  onClick={() => setActivePage(null)}
+                  className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400"
+                >
+                  <ChevronRight className="w-6 h-6 rotate-90" />
+                </button>
+              </div>
+              <div className="p-8 prose prose-slate max-w-none text-slate-600 leading-relaxed max-h-[70vh] overflow-y-auto">
+                {pages[activePage].content}
+              </div>
+              <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
+                <button 
+                  onClick={() => setActivePage(null)}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
